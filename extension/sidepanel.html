@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div style="display: flex; align-items: center;">
+      <button id="menuBtn" class="icon-btn" data-i18n-title="menu_title">☰</button>
+      <div class="title" id="viewTitle">Xray In Chrome</div>
+    </div>
+    
+    <!-- Top Right Controls -->
+    <div class="header-controls">
+      <label class="switch">
+        <input type="checkbox" id="toggleSwitch">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  </header>
+
+  <!-- Navigation Menu (Drawer) -->
+  <div id="navDrawer" class="nav-drawer">
+    <nav>
+      <a href="#" data-view="homeView" data-i18n="nav_home" class="nav-link active">首页</a>
+      <a href="#" data-view="serverView" data-i18n="nav_server" class="nav-link">节点设置</a>
+      <a href="#" data-view="subView" data-i18n="nav_sub" class="nav-link">订阅设置</a>
+      <a href="#" data-view="settingsView" data-i18n="nav_settings" class="nav-link">系统设置</a>
+      <a href="#" data-view="helpView" data-i18n="nav_help" class="nav-link">帮助说明</a>
+    </nav>
+  </div>
+  <div id="overlay" class="overlay"></div>
+
+  <main>
+    <!-- Home View -->
+    <section id="homeView" class="view active">
+        <!-- 第一行：状态信息或活动节点 -->
+        <div class="status-row">
+            <div id="statusNormal" class="status-group">
+                <div class="status-item">xray.exe <span id="xrayStatus" class="status-text stopped" data-i18n="status_stopped">未运行</span></div>
+                <div class="status-item">xray-bridge.exe <span id="bridgeStatus" class="status-text stopped" data-i18n="status_stopped">未运行</span></div>
+            </div>
+            <div id="statusActive" class="status-active" style="display: none;">
+                <span class="label" data-i18n="status_active_label">活动节点:</span>
+                <span id="activeNodeDisplay" class="node-name-text">无</span>
+            </div>
+        </div>
+
+        <!-- 第二行：日志控制按钮 -->
+        <div class="log-controls">
+            <button id="clearLogBtn" class="btn-sm" data-i18n="btn_log_clear">清空</button>
+            <button id="pauseLogBtn" class="btn-sm" data-i18n="btn_log_pause">暂停</button>
+            <button id="copyLogBtn" class="btn-sm" data-i18n="btn_log_copy">复制</button>
+            <button id="fontPlusBtn" class="btn-sm" data-i18n="btn_font_plus" data-i18n-title="tooltip_font_plus">字体+</button>
+            <button id="fontMinusBtn" class="btn-sm" data-i18n="btn_font_minus" data-i18n-title="tooltip_font_minus">字体-</button>
+        </div>
+
+        <!-- 剩余部分：日志打印区 -->
+        <div class="log-container">
+            <pre id="output"></pre>
+        </div>
+    </section>
+
+    <!-- Server View -->
+    <section id="serverView" class="view">
+      <div class="view-content flex-column">
+        <!-- 导入面板 -->
+        <div class="card" style="flex-shrink: 0;">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 5px 10px;">
+            <select id="importTypeSelect" style="border: none; background: transparent; font-size: 13px; font-weight: 500; color: #5f6368; outline: none; cursor: pointer;">
+              <option value="paste" data-i18n="import_paste">粘贴导入</option>
+              <option value="file" data-i18n="import_file">文件导入</option>
+              <option value="sub" data-i18n="import_sub">订阅导入</option>
+            </select>
+            <button id="unifiedAddBtn" class="btn-text-sm" style="font-weight: bold;" data-i18n="btn_add">添加</button>
+          </div>
+          <div class="card-body" id="importCardBody">
+            <!-- 粘贴区域 -->
+            <div id="pasteArea">
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <textarea id="shareLinkInput" data-i18n="placeholder_paste_links" placeholder="在此粘贴 VLESS/VMess/SS/Trojan 链接...
+每行一个链接" rows="3" style="width: 100%; padding: 8px; border: 1px solid #dadce0; border-radius: 4px; font-size: 12px; resize: vertical; outline: none; font-family: inherit;"></textarea>
+                <div style="display: flex; justify-content: flex-start; align-items: center;">
+                  <span id="pasteResult" style="font-size: 11px;"></span>
+                </div>
+              </div>
+            </div>
+            <!-- 文件区域 -->
+            <div id="fileArea" style="display: none;">
+              <div class="input-group" style="margin-bottom: 0;">
+                <input type="text" id="localConfigPath" data-i18n="placeholder_select_file" placeholder="点击选择json配置文件..." readonly style="cursor: pointer; flex: 1;">
+              </div>
+            </div>
+            <!-- 订阅区域 -->
+            <div id="subArea" style="display: none; margin: -15px;">
+              <div id="subList" class="node-list" style="max-height: 120px; border: none;">
+                <!-- 订阅列表动态生成 -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 节点列表 -->
+        <div class="card flex-1 flex-column" id="nodeListCard" style="min-height: 0;">
+          <div class="card-header" style="padding: 5px 10px; display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+            <input type="text" id="nodeSearch" data-i18n="placeholder_search" placeholder="搜索" style="flex: 1; border: none; background: transparent; outline: none; font-size: 13px; padding: 5px 0;">
+            <button id="dedupeNodesBtn" class="btn-text-sm" data-i18n="btn_dedupe" data-i18n-title="tooltip_dedupe" title="按内容去重">除重</button>
+            <button id="deleteAllNodesBtn" class="btn-text-sm" data-i18n="btn_clear_all" data-i18n-title="tooltip_clear_all" title="清空全部">清空</button>
+          </div>
+          <div class="card-body flex-1" style="padding: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column;">
+            <div id="nodeList" class="node-list" style="flex: 1; max-height: none;">
+              <!-- 内容将由 JS 动态生成 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Subscription View -->
+    <section id="subView" class="view">
+      <div class="view-content">
+        <!-- 添加订阅卡片 -->
+        <div class="card">
+          <div class="card-header" data-i18n="sub_add_header">添加新订阅</div>
+          <div class="card-body">
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div class="input-item">
+                <label style="font-size: 12px; color: #5f6368; display: block; margin-bottom: 4px;" data-i18n="label_sub_name">订阅名称</label>
+                <input type="text" id="newSubName" data-i18n="placeholder_sub_name" placeholder="例如：我的常用机场" class="form-input" style="width: 100%;">
+              </div>
+              <div class="input-item">
+                <label style="font-size: 12px; color: #5f6368; display: block; margin-bottom: 4px;" data-i18n="label_sub_url">订阅链接 (URL)</label>
+                <input type="text" id="newSubUrl" data-i18n="placeholder_sub_url" placeholder="https://example.com/subscribe" class="form-input" style="width: 100%;">
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                <span id="subAddResult" style="font-size: 11px;"></span>
+                <button id="addNewSubBtn" class="btn-primary" data-i18n="btn_add_sub">添加订阅</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 订阅管理卡片 -->
+        <div class="card">
+          <div class="card-header" data-i18n="sub_manage_header">管理已保存的订阅</div>
+          <div class="card-body" style="padding: 0;">
+            <div id="subSettingsList" class="node-list" style="max-height: none;">
+              <!-- 内容动态生成 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Settings View -->
+    <section id="settingsView" class="view">
+      <div class="view-content">
+        <div class="card">
+          <div class="card-header" data-i18n="settings_inbound_header">入站设置 (Inbound)</div>
+          <div class="card-body">
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div class="input-item">
+                <label style="font-size: 13px; color: #5f6368; display: block; margin-bottom: 4px;" data-i18n="label_socks_port">SOCKS 端口</label>
+                <input type="number" id="socksPort" data-i18n="placeholder_socks_port" placeholder="默认 10808" class="form-input setting-input" style="width: 100%;">
+              </div>
+              <div class="input-item">
+                <label style="font-size: 13px; color: #5f6368; display: block; margin-bottom: 4px;" data-i18n="label_http_port">HTTP 端口</label>
+                <input type="number" id="httpPort" data-i18n="placeholder_http_port" placeholder="默认 10809" class="form-input setting-input" style="width: 100%;">
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; margin-top: 8px;">
+                <button id="saveSettingsBtn" class="btn-primary" data-i18n="btn_save_ports">保存端口</button>
+                <span id="saveSettingsResult" style="font-size: 12px;"></span>
+              </div>
+            </div>
+            <div class="hint" style="margin-top: 10px;" data-i18n="hint_restart_xray">注意: 修改设置后需重启 Xray 才能生效。</div>
+          </div>
+        </div>
+
+        <!-- 浏览器代理卡片 -->
+        <div class="card">
+          <div class="card-header" data-i18n="settings_proxy_header">浏览器代理 (Proxy)</div>
+          <div class="card-body">
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="proxyBrowserCheckbox" class="setting-input" style="cursor: pointer; width: 14px; height: 14px;">
+                <label for="proxyBrowserCheckbox" style="font-size: 13px; color: #3c4043; cursor: pointer;" data-i18n="label_proxy_browser">使用[Xray in Chrome]接管此浏览器代理</label>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+                <button id="saveProxyBtn" class="btn-primary" data-i18n="btn_apply_proxy">应用代理</button>
+              </div>
+            </div>
+            <div class="hint" style="margin-top: 10px;" data-i18n="hint_proxy_info">提示：开启后浏览器流量将通过上方定义的 SOCKS 端口转发。</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Help View -->
+    <section id="helpView" class="view">
+      <div class="view-content">
+        <div class="help-guide">
+          <h2 class="guide-title" data-i18n="help_guide_title">快速上手指南</h2>
+          
+          <div class="step-list">
+            <div class="step-item">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <div class="step-title" data-i18n="help_step1_title">第一步：获取并启动向导</div>
+                <div class="step-desc" data-i18n="help_step1_desc">访问 GitHub 下载并运行 安装向导 'xray-bridge.exe'。</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <div class="step-title" data-i18n="help_step2_title">第二步：确认意图</div>
+                <div class="step-desc" data-i18n="help_step2_desc">在弹出的对话框中选择 'Yes' 以开始安装或更新桥接程序。</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <div class="step-title" data-i18n="help_step3_title">第三步：关联核心</div>
+                <div class="step-desc" data-i18n="help_step3_desc">在文件选择对话框中，选中你电脑上的 'xray.exe' 核心文件并点击确定。此操作会将桥接程序注册到 Windows 注册表，使 Chrome 浏览器获得调用xray的权限。</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <div class="step-title" data-i18n="help_step4_title">第四步：连接验证</div>
+                <div class="step-desc" data-i18n="help_step4_desc">重启浏览器并点击 Xray in Chrome 插件按钮打开侧边栏。此时插件会自动启动桥接程序，确认 'xray-bridge.exe' 状态变为 '运行中'，表明通信链路已打通。</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">5</div>
+              <div class="step-content">
+                <div class="step-title" data-i18n="help_step5_title">第五步：配置节点</div>
+                <div class="step-desc" data-i18n="help_step5_desc">在 '节点设置' 页面导入代理节点，并点击选中一个目标节点（状态显示为 ✅），将其设为活动配置。</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">6</div>
+              <div class="step-content">
+                <div class="step-title" data-i18n="help_step6_title">第六步：启动核心</div>
+                <div class="step-desc" data-i18n="help_step6_desc">在 '首页' 右上角开启运行开关。此操作将正式启动 'xray.exe' 核心进程。确认状态变为 '运行中' 且日志无报错，即启动成功。</div>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-number">7</div>
+              <div class="step-content">
+                <div class="step-title" data-i18n="help_step7_title">第七步：接管流量</div>
+                <div class="step-desc" data-i18n="help_step7_desc">在 '系统设置' 中勾选 '接管此浏览器代理' 并点击 '应用'，浏览器流量将正式通过 Xray 转发。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Custom Modal Dialog -->
+  <div id="customModal" class="modal-overlay">
+    <div class="modal-content">
+      <div id="modalTitle" class="modal-header" data-i18n="modal_default_title">提示</div>
+      <div id="modalBody" class="modal-body" style="margin-bottom: 10px;" data-i18n="modal_default_body">确认执行此操作吗？</div>
+      
+      <!-- Input Group for Modal -->
+      <div id="modalInputArea" style="display: none;">
+        <div id="modalField1" style="margin-bottom: 12px;">
+          <label id="label1" style="font-size: 11px; color: #80868b; display: block; margin-bottom: 4px;" data-i18n="modal_default_field1">字段1</label>
+          <input type="text" id="modalInput1" class="form-input" style="width: 100%;">
+        </div>
+        <div id="modalField2" style="margin-bottom: 20px; display: none;">
+          <label id="label2" style="font-size: 11px; color: #80868b; display: block; margin-bottom: 4px;" data-i18n="modal_default_field2">字段2</label>
+          <input type="text" id="modalInput2" class="form-input" style="width: 100%;">
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="modalCancelBtn" class="btn-secondary" data-i18n="modal_btn_cancel">取消</button>
+        <button id="modalConfirmBtn" class="btn-primary" data-i18n="modal_btn_ok">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>

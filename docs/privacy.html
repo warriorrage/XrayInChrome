@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | Xray In Chrome</title>
+    <link rel="icon" type="image/png" href="extension/icons/32.png">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #24292e;
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 40px;
+            background: #ffffff;
+        }
+        h1 { font-size: 28px; border-bottom: 1px solid #e1e4e8; padding-bottom: 12px; }
+        h2 { font-size: 18px; margin-top: 40px; color: #0366d6; }
+        .commitment-group {
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 24px;
+            margin-top: 20px;
+            background-color: #f6f8fa;
+        }
+        .declaration {
+            font-weight: bold;
+            font-size: 16px;
+            display: block;
+            margin-bottom: 10px;
+            color: #24292e;
+        }
+        .explanation {
+            font-size: 14px;
+            color: #586069;
+            padding-left: 20px;
+            border-left: 3px solid #dbedff;
+        }
+        .back-link { font-size: 14px; color: #0366d6; text-decoration: none; display: block; margin-bottom: 20px; }
+        footer { margin-top: 80px; font-size: 12px; color: #6a737d; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-link">&larr; Back to Documentation</a>
+    
+    <h1>Privacy Policy</h1>
+    <p>Last updated: 2026</p>
+
+    <p>We are committed to the highest standards of data privacy. Below is our formal disclosure and the technical justification for our commitments.</p>
+
+    <div class="commitment-group">
+        <span class="declaration">1. Not being sold to third parties, outside of the approved use cases.</span>
+        <div class="explanation">
+            <strong>How we achieve this:</strong> Our application has a "Zero-Server" architecture. We do not maintain any centralized database or cloud infrastructure. All server nodes, credentials, and configuration files reside physically on your own machine. We have no mechanism to extract or monetize your data.
+        </div>
+    </div>
+
+    <div class="commitment-group">
+        <span class="declaration">2. Not being used or transferred for purposes that are unrelated to the item's core functionality.</span>
+        <div class="explanation">
+            <strong>How we achieve this:</strong> The extension is a pure networking utility. The only external requests made (such as subscription updates) are initiated directly from your browser to the provider URLs you specify. There are no background telemetry or analytics scripts (like Google Analytics) included in our source code.
+        </div>
+    </div>
+
+    <div class="commitment-group">
+        <span class="declaration">3. Not being used or transferred to determine creditworthiness or for lending purposes.</span>
+        <div class="explanation">
+            <strong>How we achieve this:</strong> Xray In Chrome does not request or handle any personal identification information (PII), financial data, or credit-related data. Our permission scope is strictly limited to <code>proxy</code> management and <code>nativeMessaging</code> for local process control.
+        </div>
+    </div>
+
+    <h2>Technical Security Measures</h2>
+    <ul>
+        <li><strong>Local Storage Isolation:</strong> All data is stored in the Chrome <code>storage.local</code> sandbox, isolated from other extensions and websites.</li>
+        <li><strong>Secure Local Pipe:</strong> Communication with the Xray core uses standard <code>stdio</code> pipes via Chrome's Native Messaging API, which is localized and encrypted by the operating system's process management.</li>
+        <li><strong>Open Transparency:</strong> Users can inspect the <code>config.json</code> and generated configuration files in the <code>native-host/templinks</code> directory at any time.</li>
+    </ul>
+
+    <footer>
+        &copy; 2026 Project XrayInChrome. <br>
+        Built for privacy. Built for developers.
+    </footer>
+
+</body>
+</html>

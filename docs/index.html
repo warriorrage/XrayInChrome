@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xray In Chrome | Documentation</title>
+    <link rel="icon" type="image/png" href="extension/icons/32.png">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #24292e;
+            --primary: #0366d6;
+            --code-bg: #f6f8fa;
+            --border: #e1e4e8;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            background: var(--bg);
+        }
+        aside {
+            width: 260px;
+            height: 100vh;
+            border-right: 1px solid var(--border);
+            position: fixed;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+        aside h1 { font-size: 18px; margin-bottom: 30px; font-family: monospace; display: flex; align-items: center; gap: 10px; }
+        aside h1 img { width: 24px; height: 24px; }
+        aside a { display: block; color: var(--text); text-decoration: none; margin-bottom: 12px; font-size: 14px; }
+        aside a:hover { color: var(--primary); }
+        
+        main {
+            margin-left: 260px;
+            padding: 80px 100px;
+            max-width: 800px;
+        }
+        h2 { font-size: 24px; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-top: 40px; }
+        h3 { font-size: 18px; margin-top: 30px; }
+        
+        pre {
+            background: var(--code-bg);
+            padding: 16px;
+            border-radius: 6px;
+            overflow: auto;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 13px;
+            border: 1px solid var(--border);
+        }
+        .step { margin-bottom: 32px; }
+        .step-title { font-weight: bold; margin-bottom: 8px; display: block; color: var(--primary); }
+        .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 12px; color: #6a737d; }
+        
+        @media (max-width: 768px) {
+            aside { display: none; }
+            main { margin-left: 0; padding: 40px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<aside>
+    <h1><img src="extension/icons/32.png" alt="logo"> XrayInChrome</h1>
+    <a href="#overview">Overview</a>
+    <a href="#setup">Setup Guide</a>
+    <a href="#architecture">Architecture</a>
+    <a href="privacy.html">Privacy Policy</a>
+</aside>
+
+<main>
+    <section id="overview">
+        <h1>Xray In Chrome</h1>
+        <div style="margin: 20px 0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <img src="cover-image-2752x1536.jpg" alt="Xray In Chrome Cover" style="width: 100%; display: block;">
+        </div>
+        <p>A minimalist Xray core manager built for Chrome Side Panel. Professional, efficient, and 100% local-first.</p>
+    </section>
+
+    <section id="setup">
+        <h2>Setup Guide</h2>
+        
+        <div class="step">
+            <span class="step-title">Step 1: Prepare Environment</span>
+            <p>Download the latest <b>bridge-windows.zip</b> from <a href="https://github.com/warriorrage/XrayInChrome/releases" target="_blank">Releases</a> and extract it. Ensure the folder contains:</p>
+            <pre>
+/XrayInChrome-Bridge
+  ├── xray.exe               # Xray-core executable
+  ├── xray-bridge.exe        # Bridge binary
+  └── install.bat            # Setup script</pre>
+        </div>
+
+        <div class="step">
+            <span class="step-title">Step 2: Register Native Host</span>
+            <p>On Windows, double-click <code>install.bat</code> and provide the path to <code>xray.exe</code>. This registers the secure communication bridge with Chrome.</p>
+        </div>
+
+        <div class="step">
+            <span class="step-title">Step 3: Load Extension</span>
+            <p>1. Open Chrome and navigate to <code>chrome://extensions/</code><br>
+               2. Enable <strong>Developer mode</strong> (top right toggle)<br>
+               3. Click <strong>Load unpacked</strong><br>
+               4. Select the <code>extension</code> folder in the project directory</p>
+        </div>
+
+        <div class="step">
+            <span class="step-title">Step 4: Activation</span>
+            <p>Click the extension icon in the toolbar to open the Side Panel. Use the <strong>Health Check</strong> feature to verify the connection status.</p>
+        </div>
+    </section>
+
+    <section id="architecture">
+        <h2>Architecture</h2>
+        <pre>
+[Chrome Sidepanel] <-> [Service Worker] <-> [JSON/Stdio] <-> [Go Bridge] <-> [Xray Core]
+        |                  |                 |               |               |
+   (User Interface)   (State Mgmt)   (Native Messaging) (Process Control)  (Networking)</pre>
+    </section>
+
+    <div class="footer">
+        &copy; 2026 Project XrayInChrome. Released under MIT License.
+    </div>
+</main>
+
+</body>
+</html>
