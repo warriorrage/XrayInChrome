@@ -53,6 +53,16 @@
         }
         .step { margin-bottom: 32px; }
         .step-title { font-weight: bold; margin-bottom: 8px; display: block; color: var(--primary); }
+        .feature-list { margin: 20px 0; padding-left: 20px; }
+        .feature-list li { margin-bottom: 10px; }
+        .disclaimer { 
+            margin-top: 60px; 
+            padding: 20px; 
+            background: #fff5f5; 
+            border-left: 4px solid #ff4d4f; 
+            font-size: 13px; 
+            color: #666; 
+        }
         .footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 12px; color: #6a737d; }
         
         @media (max-width: 768px) {
@@ -68,6 +78,7 @@
     <a href="#overview">Overview</a>
     <a href="#setup">Setup Guide</a>
     <a href="#architecture">Architecture</a>
+    <a href="#security">Security</a>
     <a href="privacy.html">Privacy Policy</a>
 </aside>
 
@@ -77,29 +88,38 @@
         <div style="margin: 20px 0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
             <img src="cover-image-2752x1536.jpg" alt="Xray In Chrome Cover" style="width: 100%; display: block;">
         </div>
-        <p>A minimalist Xray core manager built for Chrome Side Panel. Professional, efficient, and 100% local-first.</p>
+        <p><b>XrayInChrome</b> is a powerful tool that integrates Xray core control directly into the browser's side panel. By leveraging the Chrome Native Messaging mechanism, it achieves a seamless connection between the browser UI and system-level network processes, allowing users to manage network proxies efficiently without dealing with complex command lines or tedious configuration files.</p>
+        
+        <h3>Core Features</h3>
+        <ul class="feature-list">
+            <li>🚀 <b>Minimalist Control Center</b>: Real-time control of Xray core startup, shutdown, and status monitoring via the Chrome Side Panel.</li>
+            <li>📦 <b>Intelligent Subscription Management</b>: Support for one-click import of node links, automatically parsing and syncing them to local state.</li>
+            <li>📜 <b>Real-time Log Stream</b>: View Xray runtime logs directly in the browser interface for rapid connection troubleshooting.</li>
+            <li>⚙️ <b>Automated Deployment</b>: Built-in Go-based Native Host with one-click registry installation.</li>
+            <li>🛡️ <b>Privilege Separation Architecture</b>: Employs a low-privilege frontend + high-privilege backend architecture for enhanced security.</li>
+        </ul>
     </section>
 
     <section id="setup">
         <h2>Setup Guide</h2>
         
         <div class="step">
-            <span class="step-title">Step 1: Prepare Environment</span>
-            <p>Download the latest <b>bridge-windows.zip</b> from <a href="https://github.com/warriorrage/XrayInChrome/releases" target="_blank">Releases</a> and extract it. Ensure the folder contains:</p>
-            <pre>
-/XrayInChrome-Bridge
-  ├── xray.exe               # Xray-core executable
-  ├── xray-bridge.exe        # Bridge binary
-  └── install.bat            # Setup script</pre>
+            <span class="step-title">Step 1: Get and Start Setup</span>
+            <p>Visit the <a href="https://github.com/warriorrage/XrayInChrome/tree/main/native-host" target="_blank">GitHub Repository</a> to download and run the setup guide <code>xray-bridge.exe</code>.</p>
         </div>
 
         <div class="step">
-            <span class="step-title">Step 2: Register Native Host</span>
-            <p>On Windows, double-click <code>install.bat</code> and provide the path to <code>xray.exe</code>. This registers the secure communication bridge with Chrome.</p>
+            <span class="step-title">Step 2: Confirm Intent</span>
+            <p>Select <b>'Yes'</b> in the popup dialog to start installing or updating the bridge.</p>
         </div>
 
         <div class="step">
-            <span class="step-title">Step 3: Load Extension</span>
+            <span class="step-title">Step 3: Link Core</span>
+            <p>Select the <code>xray.exe</code> core file on your computer and click OK. This registers the bridge in the Windows Registry, granting Chrome permission to call Xray.</p>
+        </div>
+
+        <div class="step">
+            <span class="step-title">Step 4: Load Extension</span>
             <p>1. Open Chrome and navigate to <code>chrome://extensions/</code><br>
                2. Enable <strong>Developer mode</strong> (top right toggle)<br>
                3. Click <strong>Load unpacked</strong><br>
@@ -107,18 +127,67 @@
         </div>
 
         <div class="step">
-            <span class="step-title">Step 4: Activation</span>
-            <p>Click the extension icon in the toolbar to open the Side Panel. Use the <strong>Health Check</strong> feature to verify the connection status.</p>
+            <span class="step-title">Step 5: Verify Connection</span>
+            <p>Restart your browser and click the <b>'Xray in Chrome'</b> extension button to open the side panel. The bridge will start automatically; confirm that <code>xray-bridge.exe</code> status becomes <b>'Running'</b>.</p>
+        </div>
+
+        <div class="step">
+            <span class="step-title">Step 6: Configure Nodes</span>
+            <p>Import proxy nodes in the <b>'Server'</b> page and click to select a target node (marked with ✅) as the active configuration.</p>
+        </div>
+
+        <div class="step">
+            <span class="step-title">Step 7: Start Core</span>
+            <p>Enable the toggle in the top right of the <b>'Home'</b> page. Once the status is <b>'Running'</b> and logs are clear, the Xray core is started successfully.</p>
+        </div>
+
+        <div class="step">
+            <span class="step-title">Step 8: Route Traffic</span>
+            <p>In the <b>'Others'</b> (System Settings) page, check <b>'Use Xray Proxy'</b> and click <b>'Apply'</b>. Browser traffic will now be forwarded via Xray.</p>
         </div>
     </section>
 
     <section id="architecture">
-        <h2>Architecture</h2>
+        <h2>System Architecture</h2>
+        <p>XrayInChrome adopts a <b>Privilege Separation</b> architecture to ensure both operational convenience and system security:</p>
         <pre>
-[Chrome Sidepanel] <-> [Service Worker] <-> [JSON/Stdio] <-> [Go Bridge] <-> [Xray Core]
-        |                  |                 |               |               |
-   (User Interface)   (State Mgmt)   (Native Messaging) (Process Control)  (Networking)</pre>
+[ Chrome Browser ] 
+       │
+       ▼
+[ Sidepanel UI ]  <───>  [ Background Script ]
+                                 │
+                                 │ (Chrome Native Messaging API)
+                                 ▼
+                         [ Go Native Host ]  <───>  [ Windows Registry ]
+                                 │
+                                 │ (Process Management)
+                                 ▼
+                         [ Xray Core Process ]  <───>  [ Network Traffic ]
+        </pre>
+        <ul class="feature-list">
+            <li><b>Frontend (Extension)</b>: Responsible for UI interaction, subscription parsing, and configuration orchestration.</li>
+            <li><b>Native Host (Go)</b>: Responsible for Xray process lifecycle management, physical generation of config files, and system calls.</li>
+            <li><b>Xray Core</b>: The actual binary executing the network proxy logic.</li>
+        </ul>
     </section>
+
+    <section id="security">
+        <h2>Security Note</h2>
+        <p>This project operates via Chrome's officially supported <code>Native Messaging</code> mechanism:</p>
+        <ul class="feature-list">
+            <li><b>Controlled Communication</b>: The extension cannot arbitrarily access your file system; all system operations must pass strict validation by the <code>native-host</code>.</li>
+            <li><b>Explicit Authorization</b>: Installing the backend requires administrator privileges (modifying the registry), ensuring that installation is a user-perceived and authorized action.</li>
+            <li><b>Least Privilege</b>: The extension only requests necessary API permissions and does not run any third-party remote scripts.</li>
+        </ul>
+    </section>
+
+    <div class="disclaimer">
+        <strong>Disclaimer:</strong>
+        <ul>
+            <li><b>Compliance</b>: The user is solely responsible for ensuring that the use of this project and its derivatives complies with all applicable local laws and regulations.</li>
+            <li><b>Assumption of Liability</b>: Any and all legal liabilities, disputes, or consequences arising from the use of this project and its derivatives shall be borne exclusively by the user.</li>
+        </ul>
+    </div>
 
     <div class="footer">
         &copy; 2026 Project XrayInChrome. Released under MIT License.
